@@ -25,6 +25,33 @@ Comprehensive, production-grade interactive HTML tutorial for Azure Order Manage
 12. **📊 Monitoring** - KQL queries, alerts, SLA/SLO targets, Application Insights dashboard
 13. **🚀 Roadmap** - 5-phase evolution plan with durable functions, multi-region failover, chaos engineering
 
+
+### 📁 Infrastructure as Code (IaC) Structure
+
+- The tutorial includes complete IaC implementation with the following folder structure:
+
+- infrastructure/
+├── bicep/
+│ ├── main.bicep # Main orchestrator module
+│ ├── README.md # Bicep-specific documentation
+│ ├── modules/
+│ │ ├── appInsights.bicep # Application Insights + Log Analytics
+│ │ ├── cosmosDb.bicep # Cosmos DB account, database, container
+│ │ ├── eventGrid.bicep # Event Grid topic + subscription
+│ │ ├── functionApp.bicep # Function App with consumption plan
+│ │ ├── keyVault.bicep # Key Vault with RBAC model
+│ │ ├── logicApp.bicep # Logic App Standard workflow
+│ │ ├── serviceBus.bicep # Service Bus namespace, topic, subscription
+│ │ └── storage.bicep # Storage account, containers, lifecycle
+│ └── parameters/
+│ ├── dev.bicepparam # Development environment values
+│ ├── prod.bicepparam # Production environment (hardened)
+│ └── uat.bicepparam # UAT environment (mirrors prod)
+└── terraform/
+├── main.tf # Main Terraform configuration
+├── outputs.tf # Terraform outputs
+└── variables.tf # Input variables
+
 ### 🎨 Rich Media & Interactive Elements
 
 - **9 Mermaid diagrams** - System architecture, data flows, state machines, RBAC flows
@@ -170,6 +197,7 @@ For fully offline mode, download CDN files locally and update HTML src= referenc
 
 ---
 
+**Created By**: MOHIT KAKKAR  
 **Created**: March 2026  
 **Format**: Single-page HTML with embedded styles and client-side JavaScript  
 **License**: Internal use (customizable as needed)
