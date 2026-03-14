@@ -30,27 +30,31 @@ Comprehensive, production-grade interactive HTML tutorial for Azure Order Manage
 
 - The tutorial includes complete IaC implementation with the following folder structure:
 
-- infrastructure/
-├── bicep/
-│ ├── main.bicep # Main orchestrator module
-│ ├── README.md # Bicep-specific documentation
-│ ├── modules/
-│ │ ├── appInsights.bicep # Application Insights + Log Analytics
-│ │ ├── cosmosDb.bicep # Cosmos DB account, database, container
-│ │ ├── eventGrid.bicep # Event Grid topic + subscription
-│ │ ├── functionApp.bicep # Function App with consumption plan
-│ │ ├── keyVault.bicep # Key Vault with RBAC model
-│ │ ├── logicApp.bicep # Logic App Standard workflow
-│ │ ├── serviceBus.bicep # Service Bus namespace, topic, subscription
-│ │ └── storage.bicep # Storage account, containers, lifecycle
-│ └── parameters/
-│ ├── dev.bicepparam # Development environment values
-│ ├── prod.bicepparam # Production environment (hardened)
-│ └── uat.bicepparam # UAT environment (mirrors prod)
-└── terraform/
-├── main.tf # Main Terraform configuration
-├── outputs.tf # Terraform outputs
-└── variables.tf # Input variables
+| Path | Component Type | Description | Environment Files |
+|------|---------------|-------------|-------------------|
+| **infrastructure/bicep/** | | | |
+| ├── main.bicep | Orchestrator | Main entry point that calls all modules | - |
+| ├── README.md | Documentation | Bicep-specific deployment guide | - |
+| ├── **modules/** | | | |
+| │ ├── appInsights.bicep | Module | Application Insights + Log Analytics | - |
+| │ ├── cosmosDb.bicep | Module | Cosmos DB account, database, container | - |
+| │ ├── eventGrid.bicep | Module | Event Grid topic + subscription | - |
+| │ ├── functionApp.bicep | Module | Function App with consumption plan | - |
+| │ ├── keyVault.bicep | Module | Key Vault with RBAC model | - |
+| │ ├── logicApp.bicep | Module | Logic App Standard workflow | - |
+| │ ├── serviceBus.bicep | Module | Service Bus namespace, topic, subscription | - |
+| │ └── storage.bicep | Module | Storage account, containers, lifecycle | - |
+| └── **parameters/** | | | |
+|   ├── dev.bicepparam | Parameters | Development environment values | Dev |
+|   ├── uat.bicepparam | Parameters | UAT environment (mirrors prod) | UAT |
+|   └── prod.bicepparam | Parameters | Production environment (hardened) | Prod |
+| | | | |
+| **infrastructure/terraform/** | | | |
+| ├── main.tf | Core | Main Terraform configuration | - |
+| ├── variables.tf | Core | Input variable definitions | - |
+| └── outputs.tf | Core | Output value definitions | - |
+
+**Total:** 15 IaC files (12 Bicep + 3 Terraform) covering 8 Azure services across 3 environments
 
 ### 🎨 Rich Media & Interactive Elements
 
