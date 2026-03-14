@@ -20,11 +20,11 @@ The tutorial works on all modern browsers (Chrome, Edge, Firefox, Safari).
 2. Open in any modern browser
 3. All content loads from CDNs automatically
 
-## Overview
+## 📖 Overview
 
 Comprehensive, production-grade interactive HTML tutorial for Azure Order Management System (OMS) to Dynamics 365 Finance & Operations integration via Azure Integration Services (AIS).
 
-## Features
+## ✨ Features
 
 ### ✅ All 13 Sections Implemented
 
@@ -42,10 +42,9 @@ Comprehensive, production-grade interactive HTML tutorial for Azure Order Manage
 12. **📊 Monitoring** - KQL queries, alerts, SLA/SLO targets, Application Insights dashboard
 13. **🚀 Roadmap** - 5-phase evolution plan with durable functions, multi-region failover, chaos engineering
 
-
 ### 📁 Infrastructure as Code (IaC) Structure
 
-- The tutorial includes complete IaC implementation with the following folder structure:
+The tutorial includes complete IaC implementation with the following folder structure:
 
 | Path | Component Type | Description | Environment Files |
 |------|---------------|-------------|-------------------|
@@ -92,71 +91,71 @@ Comprehensive, production-grade interactive HTML tutorial for Azure Order Manage
 
 ### 🔍 Content Highlights
 
-#### Architecture Diagrams
+#### 🏛️ Architecture Diagrams
 - HLD with 6 layers (Event Capture → State Store → Transform → Stage → Deliver → D365)
 - LLD with detailed SKU configurations and service specifics
 - Full component relationships and data flow
 
-#### Code Examples
+#### 💻 Code Examples
 - **C# Functions**: Complete OmsOrderIngestion and OmsTimerTransform implementations
 - **Bicep IaC**: Modular main.bicep with servicebus.bicep, cosmosdb.bicep, etc.
 - **Terraform**: HCL for Azure Service Bus, Cosmos DB, Storage, App Insights, Key Vault
 - **KQL Queries**: 5 production-ready queries for ingestion rate, DLQ events, latency, errors
 - **Logic App JSON**: Full workflow definition with recurrence, conditions, scope-based exception handling
 
-#### Design Rationale
+#### 🧠 Design Rationale
 - Why Service Bus Standard (not Premium)
 - Why Session consistency (not Strong) in Cosmos DB
 - Why /orderId partition key (not /processingStatus)
 - Why Managed Identity (not connection strings)
 - Why Logic App Standard (not Cloud)
 
-#### Security Architecture
+#### 🔐 Security Architecture
 - Managed Identity + RBAC for all services
 - Key Vault with secret references
 - Private endpoints and VNet integration
 - Audit logging and compliance tracking
 
-#### Monitoring & Operations
+#### 📈 Monitoring & Operations
 - Application Insights integration strategy
 - KQL queries for success rate, latency, error analysis
 - Azure Monitor alerts with severity levels
 - SLA/SLO definitions (99.9% delivery, < 5h E2E latency)
 
-#### Future Roadmap
+#### 🗺️ Future Roadmap
 - Phase 2: Durable Functions, multi-region Cosmos DB, circuit breaker
 - Phase 3: Private endpoints everywhere, VNet isolation, Defender for Cloud
 - Phase 4: Azure Monitor Workbooks, W3C TraceContext, Grafana integration
 - Phase 5: GitHub Actions CI/CD, integration tests, chaos engineering
 
-## How to Use
+## 🎯 How to Use
 
-### Navigation
+### 🧭 Navigation
 - **Left Sidebar**: Click section titles to jump to topics
 - **Collapsible Sections**: Click section headers to expand/collapse
 - **Tab Switching**: Switch between Design/Code, Bicep/Terraform, etc.
 - **Copy Buttons**: Hover over code blocks to reveal copy button
 - **Back to Top**: Click floating button in bottom-right
 
-### Search Tips
+### 🔍 Search Tips
 - Use browser Ctrl+F (Cmd+F on Mac) to search content
 - Search for function names, component names, KQL syntax
 
-## Technology Stack
+## 🛠️ Technology Stack
 
-### Frontend Libraries
+### 📦 Frontend Libraries
 - **Prism.js v1.29.0** - Syntax highlighting (6 languages)
 - **Mermaid.js v10.6.1** - Diagram rendering (flowchart, sequence, state)
 - **Google Fonts** - Typography (Inter, Fira Code)
 
-### Content Scope
+### 📊 Content Scope
 - **13 sections** covering 4+ Azure services
 - **26 code examples** across 6 languages
 - **9 architecture diagrams** with detailed labels
 - **50+ decision tables** comparing options
 - **5 KQL queries** for production monitoring
 
-## Key Takeaways
+## 💡 Key Takeaways
 
 1. **Event-driven architecture** scales from 100 to 100M orders/year
 2. **Service Bus DLQ** provides automatic failure handling + manual recovery
@@ -166,7 +165,7 @@ Comprehensive, production-grade interactive HTML tutorial for Azure Order Manage
 6. **Application Insights KQL** provides deep operational visibility
 7. **4-hour batch cycle** balances cost, latency, and D365 API limits
 
-## File Information
+## 📋 File Information
 
 | Property | Value |
 |----------|-------|
@@ -179,7 +178,7 @@ Comprehensive, production-grade interactive HTML tutorial for Azure Order Manage
 | CDN Libraries | 3 (Prism, Mermaid, Fonts) |
 | Supported Browsers | Chrome, Edge, Firefox, Safari (ES6+) |
 
-## Offline Usage
+## 📴 Offline Usage
 
 The HTML file is **fully self-contained** once loaded:
 - All CSS/JS embedded or from CDN
@@ -188,7 +187,7 @@ The HTML file is **fully self-contained** once loaded:
 
 For fully offline mode, download CDN files locally and update HTML src= references.
 
-## Browser Compatibility
+## 🌍 Browser Compatibility
 
 - ✅ Chrome/Edge (latest)
 - ✅ Firefox (latest)
@@ -196,14 +195,14 @@ For fully offline mode, download CDN files locally and update HTML src= referenc
 - ✅ Edge (Chromium-based)
 - ❌ Internet Explorer (not supported)
 
-## Performance
+## ⚡ Performance
 
 - **Initial Load**: ~2-3 seconds (CDN libraries)
 - **Section Switch**: <100ms (instant visual feedback)
 - **Code Copy**: <50ms (clipboard API)
 - **Responsive**: Works on desktop, tablet, and mobile
 
-## Author Notes
+## 👨‍💻 Author Notes
 
 - **Target Audience**: Azure architects, integration engineers, DevOps teams
 - **Prior Knowledge**: Basic Azure concepts (Functions, Cosmos DB, Service Bus)
