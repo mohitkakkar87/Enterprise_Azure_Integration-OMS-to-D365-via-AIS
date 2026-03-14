@@ -3,4 +3,6 @@
 ################################################################################
 
 /.vs/Enterprise_Azure_Integration-OMS-to-D365-via-AIS/FileContentIndex
-/.vs
+.vs/
+.vs/config/
+.vs/*
