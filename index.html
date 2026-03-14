@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMS to D365 Integration - Azure Interactive Tutorial</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.css" rel="stylesheet" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-white: #ffffff;
+            --bg-sidebar: #f6f8fa;
+            --border-color: #d0d7de;
+            --primary-blue: #0078d4;
+            --success-green: #107c10;
+            --error-red: #d83b01;
+            --heading-dark: #24292f;
+            --text-gray: #57606a;
+            --code-bg: #f6f8fa;
+            --highlight-yellow: #fff8c5;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-white);
+            color: var(--text-gray);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(135deg, var(--primary-blue), #005a9e);
+            color: white;
+        }
+
+        .sidebar-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .sidebar-section {
+            margin: 16px 0;
+        }
+
+        .sidebar-section-title {
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--heading-dark);
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.02);
+            transition: background 0.2s;
+        }
+
+        .sidebar-section-title:hover {
+            background: rgba(0, 120, 212, 0.05);
+        }
+
+        .sidebar-section-title::before {
+            content: "▶";
+            display: inline-block;
+            margin-right: 8px;
+            transition: transform 0.2s;
+            font-size: 12px;
+        }
+
+        .sidebar-section-title.expanded::before {
+            transform: rotate(90deg);
+        }
+
+        .sidebar-links {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .sidebar-links.expanded {
+            max-height: 500px;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 8px 20px 8px 40px;
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(0, 120, 212, 0.05);
+            border-left-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .sidebar-link.active {
+            background: rgba(0, 120, 212, 0.1);
+            border-left-color: var(--primary-blue);
+            color: var(--primary-blue);
+            font-weight: 500;
+        }
+
+        /* ─── MAIN CONTENT ─── */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+
+        .content-section {
+            padding: 40px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .content-section h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--heading-dark);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .content-section h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--heading-dark);
+            margin: 32px 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .content-section h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--heading-dark);
+            margin: 24px 0 12px 0;
+        }
+
+        .content-section p {
+            margin-bottom: 16px;
+            line-height: 1.7;
+        }
+
+        /* ─── FEATURE PILLS ─── */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .feature-pill {
+            background: linear-gradient(135deg, var(--primary-blue), #005a9e);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0, 120, 212, 0.2);
+        }
+
+        /* ─── MERMAID DIAGRAMS ─── */
+        .mermaid {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        /* ─── CODE BLOCKS ─── */
+        .code-wrapper {
+            position: relative;
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin: 16px 0;
+            overflow: hidden;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .copy-button:hover {
+            background: #005a9e;
+        }
+
+        pre {
+            padding: 16px;
+            margin: 0;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        code {
+            font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+
+        /* ─── INFO BOXES ─── */
+        .info-box {
+            background: var(--highlight-yellow);
+            border: 1px solid #d4a574;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .info-box strong {
+            color: #8b4513;
+        }
+
+        /* ─── WORKFLOW CARDS ─── */
+        .workflow-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .workflow-trigger {
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .workflow-action {
+            border-left: 4px solid var(--success-green);
+        }
+
+        .workflow-condition {
+            border-left: 4px solid #ff8c00;
+        }
+
+        .workflow-icon {
+            font-size: 20px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .workflow-trigger .workflow-icon {
+            background: rgba(0, 120, 212, 0.1);
+            color: var(--primary-blue);
+        }
+
+        .workflow-action .workflow-icon {
+            background: rgba(16, 124, 16, 0.1);
+            color: var(--success-green);
+        }
+
+        .workflow-condition .workflow-icon {
+            background: rgba(255, 140, 0, 0.1);
+            color: #cc7000;
+        }
+
+        .workflow-title {
+            font-weight: 600;
+            color: var(--heading-dark);
+            margin-bottom: 4px;
+        }
+
+        .workflow-desc {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        /* ─── TABS ─── */
+        .tab-container {
+            margin: 24px 0;
+        }
+
+        .tab-header {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            color: var(--text-gray);
+        }
+
+        .tab-button:hover {
+            color: var(--primary-blue);
+        }
+
+        .tab-button.active {
+            color: var(--primary-blue);
+            border-bottom-color: var(--primary-blue);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+                max-height: 300px;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .content-section {
+                padding: 20px 20px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tab-header {
+                flex-wrap: wrap;
+            }
+
+            .tab-button {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+
+        /* ─── ANIMATIONS ─── */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-section {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>🏗️ Integration Architect</h1>
+            <p>OMS → D365 via Azure</p>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title" onclick="toggleSection(this)">Getting Started</div>
+            <div class="sidebar-links">
+                <a href="#" class="sidebar-link active" onclick="showSection('overview')">🏠 Overview</a>
+                <a href="#" class="sidebar-link" onclick="showSection('architecture')">🏛️ System Architecture</a>
+                <a href="#" class="sidebar-link" onclick="showSection('dataflow')">🔀 Data Flow</a>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title" onclick="toggleSection(this)">Core Components</div>
+            <div class="sidebar-links">
+                <a href="#" class="sidebar-link" onclick="showSection('functionapp')">⚡ Function App</a>
+                <a href="#" class="sidebar-link" onclick="showSection('logicapp')">🔗 Logic App</a>
+                <a href="#" class="sidebar-link" onclick="showSection('cosmos')">🌐 Cosmos DB</a>
+                <a href="#" class="sidebar-link" onclick="showSection('servicebus')">📨 Service Bus</a>
+                <a href="#" class="sidebar-link" onclick="showSection('eventgrid')">📋 Event Grid</a>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-section-title" onclick="toggleSection(this)">Infrastructure & Ops</div>
+            <div class="sidebar-links">
+                <a href="#" class="sidebar-link" onclick="showSection('deployment')">🚀 Deployment</a>
+                <a href="#" class="sidebar-link" onclick="showSection('monitoring')">📊 Monitoring</a>
+                <a href="#" class="sidebar-link" onclick="showSection('security')">🔒 Security</a>
+                <a href="#" class="sidebar-link" onclick="showSection('costs')">💰 Cost Optimization</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <!-- ═════════════════════════════════════════════════════════════════════ -->
+        <!-- SECTION 1: OVERVIEW -->
+        <!-- ═════════════════════════════════════════════════════════════════════ -->
+        <section id="overview" class="content-section">
+            <h1>🏠 Enterprise Integration: OMS to D365</h1>
+            <p style="margin-bottom: 24px; font-size: 18px;">A comprehensive Azure-native solution for real-time order synchronization between Order Management Systems and Dynamics 365 Finance & Operations.</p>
+
+            <h2>🎯 Solution Overview</h2>
+            <p>This enterprise-grade integration leverages Azure's serverless and messaging capabilities to create a robust, scalable, and maintainable data pipeline. The solution processes CloudEvents from OMS systems, transforms them into D365-compatible formats, and delivers them via DIXF (Data Import Export Framework).</p>
+
+            <h2>✅ Key Features</h2>
+            <div class="feature-grid">
+                <div class="feature-pill">✅ Event-Driven Architecture</div>
+                <div class="feature-pill">✅ Dead Letter Queue (DLQ) Handling</div>
+                <div class="feature-pill">✅ Logic App Exception Handling</div>
+                <div class="feature-pill">✅ Function App Exception Handling</div>
+                <div class="feature-pill">✅ Idempotent Processing</div>
+                <div class="feature-pill">✅ Cosmos DB State Machine</div>
+                <div class="feature-pill">✅ Secure Event Grid Endpoint</div>
+                <div class="feature-pill">✅ ZIP-based DIXF Import</div>
+                <div class="feature-pill">✅ 3-Environment IaC (Dev/UAT/Prod)</div>
+                <div class="feature-pill">✅ Application Insights Telemetry</div>
+            </div>
+
+            <h2>📊 Performance Metrics</h2>
+            <div class="info-box">
+                <strong>Target Performance:</strong> Process 10,000 orders/hour with < 5 minute end-to-end latency<br>
+                <strong>Reliability:</strong> 99.9% uptime with comprehensive error handling and retry logic<br>
+                <strong>Scalability:</strong> Auto-scale from 1 to 100 concurrent executions based on queue depth<br>
+                <strong>Cost Efficiency:</strong> Serverless consumption model with pay-per-execution pricing
+            </div>
+
+            <h2>🏗️ Architecture at a Glance</h2>
+            <p>The solution follows a layered architecture with clear separation of concerns, comprehensive observability, and enterprise-grade security.</p>
+
+            <div class="mermaid">
+graph TB
+    OMS[("OMS Source System")] --> EG["Event Grid Custom Topic"]
+    EG --> SB["Service Bus Topic + Subscription"]
+    SB --> F1["Function 1: OmsOrderIngestion"]
+    F1 --> COSMOS[("Cosmos DB - State Store")]
+    COSMOS --> F2["Function 2: OmsTimerTransform"]
+    F2 --> BLOB["Blob Storage - ZIP Packages"]
+    BLOB --> LA["Logic App - D365 Delivery"]
+    LA --> D365[("Dynamics 365 F&O")]
+
+    AI[("Application Insights")] -.-> F1
+    AI -.-> F2
+    AI -.-> LA
+
+    KV[("Key Vault")] -.-> F1
+    KV -.-> F2
+    KV -.-> LA
+
+    style OMS fill:#1e3a5f,color:#fff
+    style EG fill:#0078d4,color:#fff
+    style SB fill:#106ebe,color:#fff
+    style F1 fill:#107c10,color:#fff
+    style COSMOS fill:#7b4f9e,color:#fff
+    style F2 fill:#c75000,color:#fff
+    style BLOB fill:#d83b01,color:#fff
+    style LA fill:#00bcf2,color:#000
+    style AI fill:#2d4a2d,color:#fff
+    style KV fill:#4a5d4a,color:#fff
+    style D365 fill:#00bcf2,color:#000
+            </div>
+        </section>
+
+        <!-- ═════════════════════════════════════════════════════════════════════ -->
+        <!-- SECTION 2: SYSTEM ARCHITECTURE -->
+        <!-- ═════════════════════════════════════════════════════════════════════ -->
+        <section id="architecture" class="content-section">
+            <h1>🏛️ System Architecture</h1>
+            <p style="margin-bottom: 24px;">Layered architecture showing data flow from OMS source through D365 destination, with observability and security cross-cutting concerns.</p>
+
+            <h2>High-Level Design</h2>
+            <p>Layered architecture showing data flow from OMS source through D365 destination, with observability and security cross-cutting concerns.</p>
+
+            <div class="mermaid">
+graph TB
+    subgraph SOURCE["OMS Source System"]
+        OMS[("OMS Order Management System")]
+    end
+    subgraph LAYER1["Layer 1 - Event Capture"]
+        EG["Event Grid Custom Topic"]
+        SB["Service Bus Topic plus Subscription plus DLQ"]
+    end
+    subgraph LAYER2["Layer 2 - Ingestion"]
+        FA1["Function 1: OmsOrderIngestion - ServiceBusTrigger"]
+    end
+    subgraph LAYER3["Layer 3 - State Store"]
+        COSMOS[("Cosmos DB - oms-orders - partition: /orderId")]
+    end
+    subgraph LAYER4["Layer 4 - Transform"]
+        FA2["Function 2: OmsTimerTransform - Timer every 4h"]
+    end
+    subgraph LAYER5["Layer 5 - Stage"]
+        BLOB["Blob Storage - oms-d365-payloads - ZIP files"]
+    end
+    subgraph LAYER6["Layer 6 - Deliver"]
+        LA["Logic App Standard - oms-to-d365-delivery - Every 4h+15min"]
+    end
+    subgraph DEST["D365 Finance and Operations"]
+        D365[("Dynamics 365 FandO - SalesOrderHeadersV2 - DIXF Import")]
+    end
+    subgraph OBS["Observability and Security"]
+        AI["Application Insights - Structured Logs and Alerts"]
+        KV["Key Vault - All Secrets and Certs"]
+    end
+    OMS -->|"CloudEvent OMS.Order.Created"| EG
+    EG -->|"Event subscription routing"| SB
+    SB -->|"ServiceBusTrigger Peek-Lock"| FA1
+    FA1 -->|"Upsert status=Pending"| COSMOS
+    COSMOS -->|"Query WHERE status=Pending"| FA2
+    FA2 -->|"Upload ZIP package"| BLOB
+    FA2 -->|"Update status=Processed"| COSMOS
+    BLOB -->|"Fetch blob content"| LA
+    LA -->|"DIXF import trigger"| D365
+    LA -->|"Success and Failure telemetry"| AI
+    FA1 -->|"Structured logs"| AI
+    KV -.->|"Secrets"| FA1
+    KV -.->|"Secrets"| LA
+    style SOURCE fill:#1e3a5f,color:#fff
+    style LAYER1 fill:#0078d4,color:#fff
+    style LAYER2 fill:#107c10,color:#fff
+    style LAYER3 fill:#7b4f9e,color:#fff
+    style LAYER4 fill:#c75000,color:#fff
+    style LAYER5 fill:#106ebe,color:#fff
+    style LAYER6 fill:#d83b01,color:#fff
+    style DEST fill:#00bcf2,color:#000
+    style OBS fill:#2d4a2d,color:#fff
+            </div>
+
+            <h3>Component Overview</h3>
+            <p><strong>Layer 1 — Event Capture:</strong> OMS publishes CloudEvents to Event Grid custom topic every 4 hours. Event Grid subscriptions route to Service Bus topic for reliable, durable message queue.</p>
+            <p><strong>Layer 2 — Ingestion:</strong> Azure Functions v4 (Function 1) binds to Service Bus subscription via ServiceBusTrigger. Validates JSON schema, checks for duplicates, and upserts order documents to Cosmos DB with status "Pending".</p>
+            <p><strong>Layer 3 — State Store:</strong> Cosmos DB NoSQL container stores order state machine. Documents partitioned by orderId; session-level consistency; 30-day TTL for automatic cleanup.</p>
+            <p><strong>Layer 4 — Transform:</strong> Function 2 runs on timer trigger (every 4 hours). Queries all "Pending" orders, claims them (status → "Processing"), transforms to D365 schema, and creates ZIP archive.</p>
+            <p><strong>Layer 5 — Stage:</strong> ZIP files stored in Blob Storage container "oms-d365-payloads". Blob naming convention: <code>oms_yyyyMMdd_HHmmss_guid.zip</code>. Files retained for 90 days.</p>
+            <p><strong>Layer 6 — Deliver:</strong> Logic App Standard runs every 4h + 15min offset. Lists blobs, downloads latest ZIP, calls D365 connector to upload, triggers DIXF import job. Updates Cosmos DB status to "Processed" on success.</p>
+            <p><strong>Destination — D365 F&O:</strong> Dynamics 365 receives ZIP package via DIXF (Data Import Export Framework). Executes standard import job for SalesOrderHeadersV2 entity. Orders appear in D365 Sales Order module.</p>
+            <p><strong>Observability:</strong> Application Insights collects structured telemetry from Functions and Logic App. Key Vault holds all connection strings, API keys, and D365 service principal credentials.</p>
+
+            <h2>Low-Level Design</h2>
+            <p>Detailed component architecture showing service SKUs, configuration parameters, and inter-service communication details.</p>
+
+            <div class="mermaid">
+graph TD
+    OMS --> EG
+    EG --> SB
+    SB --> TOPIC
+    TOPIC --> SUB
+    SUB --> F1
+    SUB --> DLQ
+    F1 --> COSMOS
+    COSMOS --> F2
+    F2 --> BLOB
+    BLOB --> LA
+    LA --> D365
+    F1 --> AI
+    LA --> AI
+    KV --> F1
+    KV --> LA
+            </div>
+
+            <h3>Key Configuration Details</h3>
+            <ul style="margin-left: 16px; margin-bottom: 16px;">
+                <li><strong>Service Bus:</strong> Standard SKU (not Premium) — cost-effective for < 5M messages/month; partition support for scalability; duplicate detection prevents replay within 10-minute window</li>
+                <li><strong>Cosmos DB:</strong> Session consistency (not Strong) — better performance (< 50ms p99 latency) with acceptable eventual consistency within single region</li>
+                <li><strong>Function App:</strong> Consumption plan = pay-per-execution; .NET 8 isolated worker process for better isolation; Managed Identity eliminates connection string storage</li>
+                <li><strong>Logic App Standard:</strong> Can run in ISE for private networking; preferred over Cloud consumption for D365 connector stability</li>
+                <li><strong>Blob Storage:</strong> ZRS replication in UAT/Prod for HA; Cool tier after 30 days reduces storage cost by 50%</li>
+            </ul>
+        </section>
+
+        <!-- ═════════════════════════════════════════════════════════════════════ -->
+        <!-- SECTION 3: DATA FLOW DIAGRAM -->
+        <!-- ═════════════════════════════════════════════════════════════════════ -->
+        <section id="dataflow" class="content-section">
+            <h1>🔀 Complete Data Flow</h1>
+            <p style="margin-bottom: 24px;">Step-by-step sequence of events showing how an order moves through the system.</p>
+
+            <h2>Sequence Diagram: End-to-End Order Processing</h2>
+            <div class="mermaid">
+                sequenceDiagram
+                    participant OMS as 🏭 OMS
+                    participant EG as 📋 Event Grid
+                    participant SB as 📨 Service Bus
+                    participant F1 as ⚡ Function 1
+                    participant COSMOS as 🌐 Cosmos DB
+                    participant AI as 📈 App Insights
+
+                    rect rgb(0, 120, 212, 0.1)
+                        note over OMS,AI: T+0h: Order Ingestion Phase
+                        OMS->>EG: POST CloudEvent (OMS.Order.Created)
+                        EG->>SB: Route to oms-orders-topic
+                        SB->>F1: ServiceBusTrigger (Peek-Lock)
+                        F1->>F1: Validate JSON schema
+                        F1->>F1: Check orderId not duplicate
+                        F1->>COSMOS: Upsert(id=order123, status="Pending", ingestedAt=now)
+                        COSMOS-->>F1: Document acknowledged
+                        F1->>AI: Track event: "IngestionSuccess"
+                        F1->>SB: CompleteMessage (remove from queue)
+                    end
+
+                    rect rgb(107, 124, 16, 0.1)
+                        note over OMS,AI: T+4h: Timer Transform Phase
+                        activate F1
+                        note over F1: Timer trigger fires
+                        F1->>COSMOS: Query WHERE processingStatus="Pending"
+                        COSMOS-->>F1: Return [order123, order456, ...]
+                        F1->>F1: Claim batch (status→"Processing")
+                        F1->>COSMOS: Update orders status="Processing", pickedUpAt=now
+                        F1->>F1: Transform orders to D365 schema
+                        F1->>F1: Create ZIP archive
+                        F1->>BLOB: Upload ZIP (oms_20260314_093000_uuid.zip)
+                        BLOB-->>F1: Blob URI + SAS URL
+                        F1->>COSMOS: Update status="Processed", blobReference=uri
+                        F1->>AI: Track event: "TransformSuccess", batchSize=42
+                        deactivate F1
+                    end
+
+                    rect rgb(212, 59, 1, 0.1)
+                        note over OMS,AI: T+4:15h: Delivery Phase
+                        participant LA as 🔗 Logic App
+                        participant D365 as D365 Finance and Operations
+                        LA->>BLOB: List blobs (filter by time)
+                        BLOB-->>LA: Return latest ZIP
+                        LA->>BLOB: Get blob content (binary)
+                        LA->>D365: Call ImportSalesOrders (connector)
+                        D365->>D365: Execute DIXF import job
+                        D365-->>LA: Job ID + status
+                        LA->>AI: Track event: "DeliverySuccess"
+                    end
+
+                    rect rgb(139, 0, 0, 0.1)
+                        note over OMS,AI: Exception Path: DLQ Handling
+                        participant DLQ as 🚨 Dead Letter Queue
+                        note over F1: Delivery count = 10
+                        F1->>DLQ: AutoDeadLetter
+                        DLQ->>AI: Alert: "DLQ message count > 0"
+                        AI->>AI: Trigger incident
+                    end
+            </div>
+
+            <h2>Data Flow Diagram — Functional Processes (DFD Level 0)</h2>
+            <div class="mermaid">
+                graph LR
+                    OMS["OMS Source System"]
+                    AIS["AIS Integration Platform"]
+                    D365["D365 Finance and Operations"]
+
+                    OMS -->|"CloudEvent Order Created"| AIS
+                    AIS -->|"ZIP DIXF Package Import"| D365
+
+                    style OMS fill:#1e3a5f,color:#fff
+                    style AIS fill:#0078d4,color:#fff
+                    style D365 fill:#00bcf2,color:#000
+            </div>
+
+            <h2>DFD Level 1 — Internal Processes</h2>
+            <div class="mermaid">
+                graph TB
+                    subgraph CAPTURE["1. Capture"]
+                        EG["Event Grid Topic"]
+                        SB["Service Bus Topic"]
+                    end
+
+                    subgraph INGEST["2. Ingest & Validate"]
+                        F1["Function 1 ServiceBusTrigger"]
+                        SCHEMA["JSON Schema Validation"]
+                        DEDUP["Duplicate Detection"]
+                    end
+
+                    subgraph STORE["3. Store State"]
+                        COSMOS["Cosmos DB State Store"]
+                        STATUS["Process Status Machine"]
+                    end
+
+                    subgraph BATCH["4. Batch & Transform"]
+                        F2["Function 2 Timer Trigger"]
+                        CLAIM["Claim Records Batch ID"]
+                        MAP["Transform to D365 Schema"]
+                        ZIP["Create ZIP Archive"]
+                    end
+
+                    subgraph STAGE["5. Stage"]
+                        BLOB["Blob Storage Processed"]
+                    end
+
+                    subgraph DELIVER["6. Deliver"]
+                        LA["Logic App Orchestration"]
+                        DIXF["DIXF Import D365 Connector"]
+                    end
+
+                    subgraph OUTPUT["7. Output"]
+                        D365["D365 Finance and Operations SalesOrders"]
+                    end
+
+                    %% Flow connections between subgraphs
+                    CAPTURE --> INGEST
+                    INGEST --> STORE
+                    STORE --> BATCH
+                    BATCH --> STAGE
+                    STAGE --> DELIVER
+                    DELIVER --> OUTPUT
+
+                    %% Internal subgraph connections
+                    EG --> SB
+                    SB --> F1
+                    F1 --> SCHEMA
+                    SCHEMA --> DEDUP
+                    COSMOS --> STATUS
+                    F2 --> CLAIM
+                    CLAIM --> MAP
+                    MAP --> ZIP
+                    LA --> DIXF
+
+                    style CAPTURE fill:#0078d4,color:#fff
+                    style INGEST fill:#107c10,color:#fff
+                    style STORE fill:#7b4f9e,color:#fff
+                    style BATCH fill:#c75000,color:#fff
+                    style STAGE fill:#106ebe,color:#fff
+                    style DELIVER fill:#d83b01,color:#fff
+                    style OUTPUT fill:#00bcf2,color:#000
+            </div>
+
+            <h2>Order State Machine Transitions</h2>
+            <div class="mermaid">
+                stateDiagram-v2
+                    direction LR
+                    [*] --> Pending : Function 1 ingests order
+                    Pending --> Processing : Function 2 claims batch every 4h
+                    Processing --> Processed : ZIP uploaded to Blob Storage
+                    Processing --> Failed : Transform exception caught
+                    Failed --> Pending : Admin re-queues for retry
+                    Processed --> [*] : TTL 30 days auto-delete
+                    Failed --> [*] : TTL 30 days auto-delete
+            </div>
+
+            <h2>Event Schema (CloudEvent → D365)</h2>
+            <p><strong>Input Event (from OMS):</strong></p>
+            <div class="code-wrapper">
+                <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-json">{
+  "specversion": "1.0",
+  "type": "OMS.Order.Created",
+  "source": "https://oms.contoso.com",
+  "id": "12345-67890",
+  "time": "2026-03-14T08:00:00Z",
+  "datacontenttype": "application/json",
+  "data": {
+    "orderId": "ORD-20260314-001",
+    "customerId": "CUST-12345",
+    "orderDate": "2026-03-14",
+    "totalAmount": 5000.00,
+    "currency": "USD",
+    "lineItems": [
+      {
+        "itemNumber": 1,
+        "productCode": "PROD-ABC",
+        "quantity": 10,
+        "unitPrice": 500.00
+      }
+    ],
+    "shippingAddress": {
+      "street": "123 Main St",
+      "city": "Seattle",
+      "state": "WA",
+      "zip": "98101",
+      "country": "US"
+    }
+  }
+}
+</code></pre>
+            </div>
+
+            <p><strong>Cosmos DB Document (after ingestion):</strong></p>
+            <div class="code-wrapper">
+                <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                <pre><code class="language-json">{
+  "id": "ORD-20260314-001",
+  "orderId": "ORD-20260314-001",
+  "processingStatus": "Pending",
+  "omsEvent": { /* full CloudEvent data */ },
+  "ingestedAt": "2026-03-14T08:00:15Z",
+  "pickedUpAt": null,
+  "processedAt": null,
+  "batchId": null,
+  "retryCount": 0
+}
+</code></pre>
+            </div>
+        </section>
+
+        <!-- ═════════════════════════════════════════════════════════════════════ -->
+        <!-- SECTION 4: FUNCTION APP -->
+        <!-- ═════════════════════════════════════════════════════════════════════ -->
+        <section id="functionapp" class="content-section">
+            <h1>⚡ Azure Functions: Ingestion and Transformation</h1>
+            <p style="margin-bottom: 24px;">Two serverless functions handle real-time validation, state management, and batch transformation with comprehensive exception handling.</p>
+
+    <h2>Function 1: OmsOrderIngestion</h2>
+    <p><strong>Trigger:</strong> Azure Service Bus (ServiceBusTrigger) &nbsp;|&nbsp; <strong>Runtime:</strong> .NET 8 Isolated &nbsp;|&nbsp; <strong>Timeout:</strong> 5 minutes</p>
+
+    <h3>Processing Flow Diagram</h3>
+    <div class="mermaid">
+flowchart TD
+    START["Service Bus Message Received - Peek-Lock acquired - Lock duration: 5 minutes"] --> SCOPE_LOG["Begin structured log scope - CorrelationId, MessageId, SequenceNumber, EnqueuedTime"]
+    SCOPE_LOG --> PARSE{"Deserialise JSON body - JsonSerializer.Deserialize"}
+    PARSE -->|"JsonException"| DLQ1["DeadLetterMessageAsync - Reason: JsonDeserialiseFailure - No retry - message is poison"]
+    PARSE -->|"Success - OmsOrderEvent object"| VALIDATE{"Validate business rules - OmsOrderValidator.Validate"}
+    VALIDATE -->|"Fails validation"| DLQ2["DeadLetterMessageAsync - Reason: ValidationFailure - Details: validation errors"]
+    VALIDATE -->|"Passes"| DEDUP{"Check Cosmos DB - orderId already exists?"}
+    DEDUP -->|"CosmosException transport error"| ABANDON1["AbandonMessageAsync - Delivery count plus 1 - Will retry up to 10 times"]
+    DEDUP -->|"Document found - duplicate"| COMPLETE1["CompleteMessageAsync - Idempotent success - Log: duplicate skipped"]
+    DEDUP -->|"Null - new order"| UPSERT{"UpsertItemAsync to Cosmos DB - status: Pending - ingestedAt: utcNow"}
+    UPSERT -->|"CosmosException"| ABANDON2["AbandonMessageAsync - Delivery count plus 1 - Retry with backoff"]
+    UPSERT -->|"Success"| TELEMETRY["Log IngestionSuccess to App Insights - OrderId, CorrelationId, Duration"]
+    TELEMETRY --> COMPLETE2["CompleteMessageAsync - Message removed from queue - SUCCESS"]
+
+    style DLQ1 fill:#d83b01,color:#fff
+    style DLQ2 fill:#d83b01,color:#fff
+    style COMPLETE1 fill:#107c10,color:#fff
+    style COMPLETE2 fill:#107c10,color:#fff
+    style ABANDON1 fill:#c75000,color:#fff
+    style ABANDON2 fill:#c75000,color:#fff
+    </div>
+
+    <h3>Full C# Implementation</h3>
+    <div class="code-wrapper">
+        <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <pre><code class="language-csharp">using Azure.Messaging.ServiceBus;
+using FunctionApp.OmsIntegration.Models;
+using FunctionApp.OmsIntegration.Services;
+using FunctionApp.OmsIntegration.Validators;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
+
+namespace FunctionApp.OmsIntegration.Functions;
+
+public class OmsOrderIngestionFunction
+{
+    private readonly ICosmosDbService _cosmosDbService;
+    private readonly ILogger&lt;OmsOrderIngestionFunction&gt; _logger;
+    private static readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    public OmsOrderIngestionFunction(
+        ICosmosDbService cosmosDbService,
+        ILogger&lt;OmsOrderIngestionFunction&gt; _logger)
+    {
+        _cosmosDbService = cosmosDbService;
+        this._logger = _logger;
+    }
+
+    [Function(nameof(OmsOrderIngestionFunction))]
+    public async Task Run(
+        [ServiceBusTrigger(
+            topicName:        "%ServiceBusTopicName%",
+            subscriptionName: "%ServiceBusSubscriptionName%",
+            Connection:       "ServiceBusConnection")]
+        ServiceBusReceivedMessage message,
+        ServiceBusMessageActions  messageActions)
+    {
+        var correlationId = message.CorrelationId ?? Guid.NewGuid().ToString();
+
+        using var logScope = _logger.BeginScope(new Dictionary&lt;string, object&gt;
+        {
+            ["CorrelationId"]  = correlationId,
+            ["MessageId"]      = message.MessageId,
+            ["DeliveryCount"]  = message.DeliveryCount,
+            ["EnqueuedTime"]   = message.EnqueuedTime
+        });
+
+        _logger.LogInformation("OmsOrderIngestionFunction started. MessageId={MessageId}", message.MessageId);
+
+        // STEP 1: Deserialise JSON
+        OmsOrderEvent? omsEvent;
+        try
+        {
+            omsEvent = JsonSerializer.Deserialize&lt;OmsOrderEvent&gt;(
+                message.Body.ToString(), _jsonOptions);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "JSON deserialisation failed for MessageId={MessageId}", message.MessageId);
+            await messageActions.DeadLetterMessageAsync(
+                message,
+                deadLetterReason: "JsonDeserialiseFailure",
+                deadLetterErrorDescription: ex.Message);
+            return;
+        }
+
+        if (omsEvent is null)
+        {
+            await messageActions.DeadLetterMessageAsync(message,
+                deadLetterReason: "NullPayload",
+                deadLetterErrorDescription: "Deserialised event was null");
+            return;
+        }
+
+        // STEP 2: Validate business rules
+        var validationResult = OmsOrderValidator.Validate(omsEvent);
+        if (!validationResult.IsValid)
+        {
+            _logger.LogWarning("Validation failed for OrderId={OrderId}: {Errors}",
+                omsEvent.OrderId, string.Join("; ", validationResult.Errors));
+            await messageActions.DeadLetterMessageAsync(message,
+                deadLetterReason: "ValidationFailure",
+                deadLetterErrorDescription: string.Join("; ", validationResult.Errors));
+            return;
+        }
+
+        // STEP 3: Idempotency check
+        OmsOrderDocument? existing = null;
+        try
+        {
+            existing = await _cosmosDbService.GetOrderByIdAsync(omsEvent.OrderId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Cosmos DB read failed for OrderId={OrderId}", omsEvent.OrderId);
+            await messageActions.AbandonMessageAsync(message);
+            return;
+        }
+
+        if (existing is not null)
+        {
+            _logger.LogInformation("Duplicate: OrderId={OrderId} already in Cosmos DB. Completing.", omsEvent.OrderId);
+            await messageActions.CompleteMessageAsync(message);
+            return;
+        }
+
+        // STEP 4: Persist to Cosmos DB
+        var document = new OmsOrderDocument
+        {
+            Id               = omsEvent.OrderId,
+            OrderId          = omsEvent.OrderId,
+            ProcessingStatus = "Pending",
+            OmsEvent         = omsEvent,
+            IngestedAt       = DateTimeOffset.UtcNow,
+            RetryCount       = 0
+        };
+
+        try
+        {
+            await _cosmosDbService.UpsertOrderAsync(document);
+            _logger.LogInformation("Ingested OrderId={OrderId} with status=Pending", omsEvent.OrderId);
+            await messageActions.CompleteMessageAsync(message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to upsert OrderId={OrderId}. Abandoning.", omsEvent.OrderId);
+            await messageActions.AbandonMessageAsync(message);
+        }
+    }
+}</code></pre>
+            </div>
+
+    <h2>Function 2: OmsTimerTransform</h2>
+    <p><strong>Trigger:</strong> Timer CRON (0 0 */4 * * *) &nbsp;|&nbsp; <strong>Runtime:</strong> .NET 8 Isolated &nbsp;|&nbsp; <strong>Timeout:</strong> 30 minutes</p>
+
+    <h3>Processing Flow Diagram</h3>
+    <div class="mermaid">
+flowchart TD
+    TIMER["Timer fires every 4 hours - CRON: 0 0 */4 * * * - Runs at 00:00 04:00 08:00 12:00 16:00 20:00 UTC"] --> QUERY["Query Cosmos DB - WHERE processingStatus = Pending - ORDER BY ingestedAt ASC - Cross-partition query"]
+    QUERY -->|"No Pending orders"| EXIT["Log: No pending orders - Function exits - Next run in 4 hours"]
+    QUERY -->|"N orders found"| CLAIM["IDEMPOTENCY STEP 1 - Bulk update status = Processing - Set batchId = new GUID - Set pickedUpAt = utcNow"]
+    CLAIM --> MAP["Transform each order - OmsToD365Mapper.Map - OmsOrderEvent to D365SalesOrder - Map line items to D365SalesOrderLine"]
+    MAP --> BUILD_ZIP["Build ZIP archive in MemoryStream - header.json - package.yaml - sales_orders.json - sales_order_lines.json"]
+    BUILD_ZIP --> UPLOAD{"Upload ZIP to Blob Storage - Container: oms-d365-payloads - Name: oms yyyyMMdd HHmmss guid .zip"}
+    UPLOAD -->|"BlobServiceException"| FAIL["Update status = Failed - retryCount++ - Log error to App Insights - Alert on-call"]
+    UPLOAD -->|"Success"| MARK["IDEMPOTENCY STEP 2 - Bulk update status = Processed - Set processedAt = utcNow - Set blobReference = blob URI"]
+    MARK --> TELEMETRY["Log TransformSuccess to App Insights - batchId, batchSize, duration, blobName"]
+
+    style EXIT fill:#107c10,color:#fff
+    style TELEMETRY fill:#107c10,color:#fff
+    style FAIL fill:#d83b01,color:#fff
+    </div>
+
+    <h3>ZIP Package Contents</h3>
+    <div class="info-box">
+        <strong>Every ZIP file contains 4 files required by D365 DIXF:</strong><br>
+        <code>header.json</code> — Package envelope with batch metadata and timestamp<br>
+        <code>package.yaml</code> — DIXF manifest listing entities and import sequence<br>
+        <code>sales_orders.json</code> — Transformed D365 SalesOrderHeadersV2 records<br>
+        <code>sales_order_lines.json</code> — Transformed D365 SalesOrderLinesV2 records
+    </div>
+
+    <h3>Full C# Implementation</h3>
+    <div class="code-wrapper">
+        <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <pre><code class="language-csharp">using FunctionApp.OmsIntegration.Mappers;
+using FunctionApp.OmsIntegration.Models;
+using FunctionApp.OmsIntegration.Services;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
+using System.IO.Compression;
+using System.Text;
+using System.Text.Json;
+
+namespace FunctionApp.OmsIntegration.Functions;
+
+public class OmsTimerTransformFunction
+{
+    private readonly ICosmosDbService    _cosmosDbService;
+    private readonly IBlobStorageService _blobStorageService;
+    private readonly ILogger&lt;OmsTimerTransformFunction&gt; _logger;
+
+    private static readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        WriteIndented        = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
+    public OmsTimerTransformFunction(
+        ICosmosDbService    cosmosDbService,
+        IBlobStorageService blobStorageService,
+        ILogger&lt;OmsTimerTransformFunction&gt; _logger)
+    {
+        _cosmosDbService    = cosmosDbService;
+        _blobStorageService = blobStorageService;
+        this._logger        = _logger;
+    }
+
+    // CRON: fires at 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
+    [Function(nameof(OmsTimerTransformFunction))]
+    public async Task Run([TimerTrigger("0 0 */4 * * *")] TimerInfo timerInfo)
+    {
+        var startTime = DateTimeOffset.UtcNow;
+        var batchId = Guid.NewGuid().ToString();
+
+        _logger.LogInformation("OmsTimerTransformFunction started. BatchId={BatchId}", batchId);
+
+        // STEP 1: Query pending orders
+        List&lt;OmsOrderDocument&gt; pendingOrders;
+        try
+        {
+            pendingOrders = await _cosmosDbService.GetPendingOrdersAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to query pending orders. BatchId={BatchId}", batchId);
+            return;
+        }
+
+        if (!pendingOrders.Any())
+        {
+            _logger.LogInformation("No pending orders found. Exiting. BatchId={BatchId}", batchId);
+            return;
+        }
+
+        // STEP 2: IDEMPOTENCY — claim orders for processing
+        try
+        {
+            await _cosmosDbService.MarkOrdersProcessingAsync(
+                pendingOrders.Select(o => o.OrderId), batchId);
+            _logger.LogInformation("Claimed {Count} orders for processing. BatchId={BatchId}",
+                pendingOrders.Count, batchId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to claim orders. BatchId={BatchId}", batchId);
+            return;
+        }
+
+        // STEP 3: Transform orders to D365 schema
+        var salesOrders = new List&lt;D365SalesOrder&gt;();
+        var salesOrderLines = new List&lt;D365SalesOrderLine&gt;();
+
+        foreach (var order in pendingOrders)
+        {
+            var result = OmsToD365Mapper.Map(order.OmsEvent);
+            salesOrders.Add(result.SalesOrder);
+            salesOrderLines.AddRange(result.SalesOrderLines);
+        }
+
+        // STEP 4: Create ZIP archive
+        using var zipStream = new MemoryStream();
+        using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Create, true))
+        {
+            // header.json
+            var header = new
+            {
+                batchId = batchId,
+                timestamp = DateTimeOffset.UtcNow,
+                orderCount = pendingOrders.Count,
+                totalValue = salesOrders.Sum(o => o.TotalAmount)
+            };
+            AddJsonEntry(archive, "header.json", header);
+
+            // package.yaml
+            var packageYaml = @"entities:
+  - entity: SalesOrderHeadersV2
+    datafile: sales_orders.json
+  - entity: SalesOrderLinesV2
+    datafile: sales_order_lines.json";
+            AddTextEntry(archive, "package.yaml", packageYaml);
+
+            // sales_orders.json
+            AddJsonEntry(archive, "sales_orders.json", salesOrders);
+
+            // sales_order_lines.json
+            AddJsonEntry(archive, "sales_order_lines.json", salesOrderLines);
+        }
+
+        // STEP 5: Upload ZIP to Blob Storage
+        zipStream.Position = 0;
+        try
+        {
+            await _blobStorageService.UploadAsync(blobName, zipStream);
+            _logger.LogInformation("ZIP uploaded: {BlobName}. BatchId={BatchId}", blobName, batchId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Upload failed for BatchId={BatchId}. Marking orders Failed.", batchId);
+            await _cosmosDbService.MarkOrdersFailedAsync(pendingOrders.Select(o => o.OrderId), batchId);
+            throw;
+        }
+
+        // STEP 6: IDEMPOTENCY — mark orders as processed
+        await _cosmosDbService.MarkOrdersProcessedAsync(
+            pendingOrders.Select(o => o.OrderId),
+            batchId,
+            blobReference: blobName);
+
+        var duration = DateTimeOffset.UtcNow - startTime;
+        _logger.LogInformation(
+            "TransformSuccess. BatchId={BatchId} BatchSize={BatchSize} Duration={Duration}ms BlobName={BlobName}",
+            batchId, pendingOrders.Count, (int)duration.TotalMilliseconds, blobName);
+    }
+
+    private static void AddJsonEntry&lt;T&gt;(ZipArchive archive, string fileName, T obj)
+    {
+        var entry = archive.CreateEntry(fileName, CompressionLevel.Optimal);
+        using var writer = new StreamWriter(entry.Open(), Encoding.UTF8);
+        writer.Write(JsonSerializer.Serialize(obj, _jsonOptions));
+    }
+
+    private static void AddTextEntry(ZipArchive archive, string fileName, string content)
+    {
+        var entry = archive.CreateEntry(fileName, CompressionLevel.Optimal);
+        using var writer = new StreamWriter(entry.Open(), Encoding.UTF8);
+        writer.Write(content);
+    }
+}</code></pre>
+            </div>
+        </section>
+
+        <!-- Additional sections would go here -->
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            securityLevel: 'loose',
+            fontFamily: 'arial',
+            fontSize: 14
+        });
+
+        // Render all Mermaid diagrams after page load
+        document.addEventListener('DOMContentLoaded', function() {
+            mermaid.run();
+        });
+
+        // Sidebar navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.style.display = 'none');
+
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+            }
+
+            // Update active sidebar link
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+            sidebarLinks.forEach(link => link.classList.remove('active'));
+
+            const activeLink = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        // Sidebar toggle
+        function toggleSection(element) {
+            element.classList.toggle('expanded');
+            const links = element.nextElementSibling;
+            if (links) {
+                links.classList.toggle('expanded');
+            }
+        }
+
+        // Tab switching (for sections that still use tabs)
+        function switchTab(event, tabId) {
+            const tabContainer = event.target.closest('.tab-container');
+            if (!tabContainer) return;
+
+            // Update tab buttons
+            const tabButtons = tabContainer.querySelectorAll('.tab-button');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            const tabContents = tabContainer.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            const targetContent = document.getElementById(tabId);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+        }
+
+        // Copy code functionality
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const code = codeBlock.textContent || codeBlock.innerText;
+
+            navigator.clipboard.writeText(code).then(function() {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = '#107c10';
+
+                setTimeout(function() {
+                    button.textContent = originalText;
+                    button.style.background = '';
+                }, 2000);
+            });
+        }
+
+        // Show overview by default
+        showSection('overview');
+    </script>
+</body>
+</html>
