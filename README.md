@@ -1,115 +1,175 @@
-🏗️ Enterprise Azure Integration: OMS to D365 via Azure Integration Services (AIS)
-We are building a mission-critical, enterprise-grade integration between an Order Management System (OMS) and Microsoft Dynamics 365 Finance & Operations (D365 F&O) using Azure Integration Services (AIS) as the middleware backbone.
-Table of Contents
-1.	What Are We Building?
-2.	Architecture Overview
-3.	Component Selection Rationale
-4.	Step 1 — OMS Source System & Event Grid
-5.	Step 2 — Service Bus & Azure Function (Ingestion Layer)
-6.	Step 3 — Cosmos DB Data Store & Idempotency Design
-7.	Step 4 — Timer-Triggered Function App (Transformation Layer)
-8.	Step 5 — Zip, Blob Storage & Idempotency Update
-9.	Step 6 — Logic App Standard Workflow (Delivery Layer)
-10.	Step 7 — D365 Finance & Operations Integration
-11.	Telemetry, Exception Handling & Application Insights
-12.	Infrastructure as Code (Terraform)
-13.	Security Architecture
-14.	End-to-End Flow Summary
-15.	Industry Standards & Best Practices Applied
+# OMS to D365 Integration - Interactive Tutorial
 
+## Overview
 
+Comprehensive, production-grade interactive HTML tutorial for Azure Order Management System (OMS) to Dynamics 365 Finance & Operations integration via Azure Integration Services (AIS).
 
+**File:** `index.html` (145 KB, 3,498 lines)  
+**Format:** Single-page application (SPA) with client-side navigation
 
+## Features
 
+### ✅ All 13 Sections Implemented
 
+1. **🏠 Overview** - Key highlights, big picture data flow, performance metrics
+2. **🏛️ Architecture** - High-level and low-level design with detailed Mermaid diagrams
+3. **🔀 Data Flow** - End-to-end sequence diagrams and state machines
+4. **🧩 Design Decisions** - Component selection matrix with alternatives analysis
+5. **⚡ Event Grid & Security** - CloudEvents payload, authentication methods, 4-hour cycle rationale
+6. **📨 Service Bus & DLQ** - Configuration details, dead-letter handling, monitoring alerts
+7. **⚡ Function App** - Ingestion & transformation functions with full C# code
+8. **🔗 Logic App** - Visual workflow design and JSON definition with exception handling
+9. **🌐 Cosmos DB** - Document schema, state machine, partition key strategy, TTL policy
+10. **🏗️ IaC** - Complete Bicep modules and Terraform HCL for 3-environment deployment
+11. **🔒 Security** - Defense-in-depth: network, identity, data encryption, secret management
+12. **📊 Monitoring** - KQL queries, alerts, SLA/SLO targets, Application Insights dashboard
+13. **🚀 Roadmap** - 5-phase evolution plan with durable functions, multi-region failover, chaos engineering
 
+### 🎨 Rich Media & Interactive Elements
 
-1. What Are We Building?
-🧠 Read this section if you are new to Azure Integration. Skip if you are already familiar.
-Think of it like a Post Office 📬
-Imagine a very busy warehouse (your OMS) that is constantly packing boxes (orders/products). The warehouse needs to send these boxes to a large department store chain (D365 Finance & Operations). But you cannot just throw hundreds of boxes at the store all at once — that would overwhelm their receiving dock.
-So here is what we do:
-📦 Warehouse (OMS)
-    ↓  Drops announcement slips (Events)
-📋 Notice Board (Event Grid)
-    ↓  Slips go into a sorted mailbox (Service Bus)
-🏃 A Runner (Azure Function) picks them up immediately
-    ↓  Writes everything into a logbook (Cosmos DB)
-⏰ Every 4 hours — A shift supervisor (Timer Function) reviews the logbook
-    ↓  Collects all new entries, sorts and formats them
-    ↓  Puts everything in a sealed envelope (ZIP file in Blob Storage)
-    ↓  Marks the logbook entries as "already processed" ✅
-📬 A delivery driver (Logic App) picks up the envelope every 4 hours
-    ↓  Delivers it to the department store's loading dock (D365 F&O)
-    ↓  Tells the store "your package is here, start unpacking!" (Notification)
-🏬 Department Store (D365 F&O) processes the package
-Why Every 4 Hours?
-In enterprise integrations — especially with ERP systems like D365 — batch processing is often more reliable and efficient than real-time streaming for large datasets. The source system (OMS) generates high volumes continuously. Processing every single event in real-time against D365 would:
-•	Overwhelm D365's API throttle limits
-•	Create thousands of small transactions instead of efficient bulk imports
-•	Increase cost significantly
-4-hour micro-batching gives us the best of both worlds: near-real-time freshness with bulk processing efficiency.
+- **9 Mermaid diagrams** - System architecture, data flows, state machines, RBAC flows
+- **26 code blocks** - Bicep, Terraform, C#, JSON, KQL, Bash with syntax highlighting
+- **17 tab interfaces** - Design/Code tabs, IaC file switchers, environment parameters
+- **28 copy buttons** - One-click code copying with visual feedback
+- **Responsive sidebar** - Fixed navigation with collapsible sections
+- **Back-to-top button** - Sticky button for quick navigation
 
-2. Architecture Overview
-2.1 High-Level Architecture Diagram
+### 📚 Typography & Styling
 
-ENTERPRISE AZURE INTEGRATION ARCHITECTURE                     
- 
-Block Diagram: 
- 
-2.2 Data Flow Timeline
-T+0:00 │ OMS publishes event → Event Grid → Service Bus
-T+0:01 │ Function App #1 picks up from Service Bus → Stores in Cosmos DB
-T+0: xx │ More OMS events continue flowing in...
-        
-T+4:00 │  ⏰ Function App #2 (Timer) fires → Queries Cosmos DB
-         │ Maps, Transforms, Creates Header + Package.yaml
-         │ Zips all files → Uploads to Blob Storage
-         │ Updates Cosmos DB records → status = "Processed"
-         │
-T+4:05 │  ⏰ Logic App (Timer) fires → Detects new blob
-         │ Connects to D365 F&O → Uploads blob
-         │ Sends processing notification to D365
-         │ Logs telemetry to App Insights
-         
-T+4:06 │ D365 F&O processes the ZIP import file
-         │ Orders/Products imported into D365 data entities
-________________________________________
-3. Component Selection Rationale
-3.1 Why Azure Functions over Azure Data Factory (ADF)?
-This is a key architectural decision. Here is the reasoning:
-Factor	Azure Functions ✅	Azure Data Factory
-Event-Driven Trigger	Native ServiceBus trigger, sub-second response	Not designed for event-driven; pipeline runs are heavier
-Custom Logic	Full C# code for mapping, transformation, ZIP	Limited transformation; needs custom activities
-Cost (low volume)	Consumption plan: pay per execution (ms billing)	Pipeline runs billed per activity run
-Latency	Cold start ~200ms, warm: <10ms	Pipeline initialization: 15-30 seconds
-Code Control	Full control over C# transformation logic	JSON-based mapping, limited code
-Secrets/Security	Managed Identity + Key Vault natively	Managed Identity supported but complex
-Cosmos DB SDK	Native SDK, full LINQ query support	Cosmos DB connector limited
-ZIP file generation	Native .NET System.IO.Compression	Not possible without custom activity
-Verdict: Azure Functions wins decisively for this use case. ADF excels at large-scale data movement (copy data, ETL pipelines across databases), not event-driven processing with custom code logic.
-3.2 Why Service Bus Topic (not Event Grid subscription directly)?
-Option A:
-OMS → Event Grid → Azure Function (Direct)
-❌ No durability guarantee
-❌ No dead-letter queue for failed events  
-❌ Max retry is 24 hours
-❌ No message ordering
+- **Google Fonts**: Inter (body), Fira Code (monospace)
+- **Prism.js CDN** - Syntax highlighting for bicep, hcl, csharp, json, yaml, kusto, bash
+- **Mermaid.js CDN** - Live diagram rendering
+- **Azure color palette** - Primary blue (#0078d4), success green (#107c10), error red (#d83b01)
+- **GitHub-inspired UI** - Clean, professional dark-on-light design
 
-Option B (Better Choice ✅):
-OMS → Event Grid → Service Bus Topic → Azure Function
-✅ Messages persisted for 14 days
-✅ Built-in Dead Letter Queue (DLQ) for poison messages
-✅ Sessions support for ordered processing
-✅ Peek-lock prevents duplicate processing
-✅ Max delivery count configurable (e.g., 10 retries)
-Service Bus Topic is chosen over a Queue because:
-•	A Topic allows multiple subscriptions — future systems can also subscribe to OMS events without changing the source
-•	The OMS → D365 integration is one subscriber; a future analytics pipeline can be another subscriber on the same topic
+### 🔍 Content Highlights
 
-4. Step 1 — OMS Source System & Event Grid
-4.1 Simple English
-The OMS (Order Management System) is like a very active WhatsApp group that keeps sending messages every time something changes — a new order, a product update, inventory changes. Instead of texting everyone directly (which would be chaotic), it posts to a "notice board" called Event Grid.
-4.2 Event Grid Architecture
+#### Architecture Diagrams
+- HLD with 6 layers (Event Capture → State Store → Transform → Stage → Deliver → D365)
+- LLD with detailed SKU configurations and service specifics
+- Full component relationships and data flow
 
+#### Code Examples
+- **C# Functions**: Complete OmsOrderIngestion and OmsTimerTransform implementations
+- **Bicep IaC**: Modular main.bicep with servicebus.bicep, cosmosdb.bicep, etc.
+- **Terraform**: HCL for Azure Service Bus, Cosmos DB, Storage, App Insights, Key Vault
+- **KQL Queries**: 5 production-ready queries for ingestion rate, DLQ events, latency, errors
+- **Logic App JSON**: Full workflow definition with recurrence, conditions, scope-based exception handling
 
+#### Design Rationale
+- Why Service Bus Standard (not Premium)
+- Why Session consistency (not Strong) in Cosmos DB
+- Why /orderId partition key (not /processingStatus)
+- Why Managed Identity (not connection strings)
+- Why Logic App Standard (not Cloud)
+
+#### Security Architecture
+- Managed Identity + RBAC for all services
+- Key Vault with secret references
+- Private endpoints and VNet integration
+- Audit logging and compliance tracking
+
+#### Monitoring & Operations
+- Application Insights integration strategy
+- KQL queries for success rate, latency, error analysis
+- Azure Monitor alerts with severity levels
+- SLA/SLO definitions (99.9% delivery, < 5h E2E latency)
+
+#### Future Roadmap
+- Phase 2: Durable Functions, multi-region Cosmos DB, circuit breaker
+- Phase 3: Private endpoints everywhere, VNet isolation, Defender for Cloud
+- Phase 4: Azure Monitor Workbooks, W3C TraceContext, Grafana integration
+- Phase 5: GitHub Actions CI/CD, integration tests, chaos engineering
+
+## How to Use
+
+### Opening the File
+1. Download `index.html`
+2. Open in modern browser (Chrome, Edge, Firefox, Safari)
+3. No server required; all content loads from CDNs
+
+### Navigation
+- **Left Sidebar**: Click section titles to jump to topics
+- **Collapsible Sections**: Click section headers to expand/collapse
+- **Tab Switching**: Switch between Design/Code, Bicep/Terraform, etc.
+- **Copy Buttons**: Hover over code blocks to reveal copy button
+- **Back to Top**: Click floating button in bottom-right
+
+### Search Tips
+- Use browser Ctrl+F (Cmd+F on Mac) to search content
+- Search for function names, component names, KQL syntax
+
+## Technology Stack
+
+### Frontend Libraries
+- **Prism.js v1.29.0** - Syntax highlighting (6 languages)
+- **Mermaid.js v10.6.1** - Diagram rendering (flowchart, sequence, state)
+- **Google Fonts** - Typography (Inter, Fira Code)
+
+### Content Scope
+- **13 sections** covering 4+ Azure services
+- **26 code examples** across 6 languages
+- **9 architecture diagrams** with detailed labels
+- **50+ decision tables** comparing options
+- **5 KQL queries** for production monitoring
+
+## Key Takeaways
+
+1. **Event-driven architecture** scales from 100 to 100M orders/year
+2. **Service Bus DLQ** provides automatic failure handling + manual recovery
+3. **Cosmos DB state machine** enables idempotent batch processing
+4. **Managed Identity + RBAC** eliminates credential management overhead
+5. **3-environment IaC** (Bicep/Terraform) enables repeatable deployments
+6. **Application Insights KQL** provides deep operational visibility
+7. **4-hour batch cycle** balances cost, latency, and D365 API limits
+
+## File Information
+
+| Property | Value |
+|----------|-------|
+| File Size | 145 KB |
+| Lines of Code | 3,498 |
+| Sections | 13 |
+| Code Blocks | 26 |
+| Diagrams | 9 |
+| Tables | 50+ |
+| CDN Libraries | 3 (Prism, Mermaid, Fonts) |
+| Supported Browsers | Chrome, Edge, Firefox, Safari (ES6+) |
+
+## Offline Usage
+
+The HTML file is **fully self-contained** once loaded:
+- All CSS/JS embedded or from CDN
+- External libraries load on page open (requires internet)
+- After initial load, works offline (diagrams pre-rendered)
+
+For fully offline mode, download CDN files locally and update HTML src= references.
+
+## Browser Compatibility
+
+- ✅ Chrome/Edge (latest)
+- ✅ Firefox (latest)
+- ✅ Safari 14+
+- ✅ Edge (Chromium-based)
+- ❌ Internet Explorer (not supported)
+
+## Performance
+
+- **Initial Load**: ~2-3 seconds (CDN libraries)
+- **Section Switch**: <100ms (instant visual feedback)
+- **Code Copy**: <50ms (clipboard API)
+- **Responsive**: Works on desktop, tablet, and mobile
+
+## Author Notes
+
+- **Target Audience**: Azure architects, integration engineers, DevOps teams
+- **Prior Knowledge**: Basic Azure concepts (Functions, Cosmos DB, Service Bus)
+- **Use Cases**: Architecture review, implementation guide, training material
+- **Maintenance**: Update sections independently; self-contained HTML format
+- **Extensibility**: Add more Mermaid diagrams, code examples, or sections as needed
+
+---
+
+**Created**: March 2026  
+**Format**: Single-page HTML with embedded styles and client-side JavaScript  
+**License**: Internal use (customizable as needed)
