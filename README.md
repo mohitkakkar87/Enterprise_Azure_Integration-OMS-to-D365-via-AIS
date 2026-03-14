@@ -1,11 +1,28 @@
-# OMS to D365 Integration - Interactive Tutorial
+# Order Management System → Dynamics 365: Enterprise Integration Architecture
+## ⚡ Serverless | 🔄 Event-Driven Order Processing | ☁️ Azure Integration Services | 🚀 Production-Ready
+
+## 🌐 Browse Live Tutorial (No installation required)
+
+Access the complete interactive tutorial online:
+
+👉 [![Live Demo](https://img.shields.io/badge/LIVE%20DEMO-Click%20to%20Browse-0078d4?style=for-the-badge&logo=github)](https://mohitkakkar87.github.io/Enterprise_Azure_Integration-OMS-to-D365-via-AIS/) 👈
+
+| Resource | Link |
+|----------|------|
+| **📁 GitHub Repository** | [![GitHub Repository](https://img.shields.io/badge/GITHUB%20REPO-View%20on%20GitHub-2ea44f?style=for-the-badge&logo=github)](https://github.com/mohitkakkar87/Enterprise_Azure_Integration-OMS-to-D365-via-AIS) |
+| **📄 HTML File** | `index.html` (download from repo) |
+| **💻 Format** | Single-page application (SPA) with client-side navigation |
+
+The tutorial works on all modern browsers (Chrome, Edge, Firefox, Safari).
+
+### 📥 Offline Access
+1. Download `index.html` from the repository
+2. Open in any modern browser
+3. All content loads from CDNs automatically
 
 ## Overview
 
 Comprehensive, production-grade interactive HTML tutorial for Azure Order Management System (OMS) to Dynamics 365 Finance & Operations integration via Azure Integration Services (AIS).
-
-**File:** `index.html` (145 KB, 3,498 lines)  
-**Format:** Single-page application (SPA) with client-side navigation
 
 ## Features
 
@@ -113,11 +130,6 @@ Comprehensive, production-grade interactive HTML tutorial for Azure Order Manage
 - Phase 5: GitHub Actions CI/CD, integration tests, chaos engineering
 
 ## How to Use
-
-### Opening the File
-1. Download `index.html`
-2. Open in modern browser (Chrome, Edge, Firefox, Safari)
-3. No server required; all content loads from CDNs
 
 ### Navigation
 - **Left Sidebar**: Click section titles to jump to topics
